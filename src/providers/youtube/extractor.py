@@ -15,8 +15,7 @@ from src.core.interfaces import VideoExtractor
 from src.core.models import VideoMetadata, Transcript, TranscriptSegment
 from src.providers.youtube.exceptions import (
     VideoNotFound,
-    QuotaExceeded,
-    TranscriptNotAvailable
+    QuotaExceeded
 )
 
 
@@ -61,9 +60,8 @@ class YouTubeExtractor(VideoExtractor):
                 tags=snippet.get('tags', [])
             )
 
-        except Exception as e:
-            # Handle HttpError if it exists and is quota exceeded
-            if hasattr(e, 'resp') and hasattr(e.resp, 'status') and e.resp.status == 403:
+        except HttpError as e:
+            if e.resp.status == 403:
                 raise QuotaExceeded("YouTube API quota exceeded")
             raise
 
@@ -161,9 +159,8 @@ class YouTubeExtractor(VideoExtractor):
                 if not next_page_token:
                     break
 
-        except Exception as e:
-            # Handle HttpError if it exists and is quota exceeded
-            if hasattr(e, 'resp') and hasattr(e.resp, 'status') and e.resp.status == 403:
+        except HttpError as e:
+            if e.resp.status == 403:
                 raise QuotaExceeded("YouTube API quota exceeded")
             raise
 
