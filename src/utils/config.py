@@ -28,6 +28,12 @@ class Config:
             os.getenv("YOUTUBE_REQUESTS_PER_SECOND", "10")
         )
 
+        # LLM (OpenRouter)
+        self.openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
+        self.llm_model = os.getenv("LLM_MODEL", "qwen/qwen-2.5-72b-instruct")
+        self.max_monthly_cost = float(os.getenv("MAX_MONTHLY_COST", "10.0"))
+        self.warn_at_cost = float(os.getenv("WARN_AT_COST", "8.0"))
+
     @property
     def metadata_dir(self) -> Path:
         """Directory for video metadata JSON files."""

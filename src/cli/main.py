@@ -4,6 +4,8 @@ import sys
 import click
 
 from src.cli.utils import extract_playlist_id, extract_video_id
+from src.llm.analyzer import ContentAnalyzer
+from src.llm.openrouter_client import OpenRouterClient, CostTracker
 from src.pipeline.pipeline import Pipeline
 from src.providers.storage.json_repo import JSONRepository
 from src.providers.youtube.extractor import YouTubeExtractor
@@ -92,6 +94,116 @@ def extract(url, playlist, channel, limit):
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
         logger.exception("Extraction failed")
+        sys.exit(1)
+
+
+@cli.command()
+@click.argument('video_ids', nargs=-1, required=True)
+@click.option('--template', type=click.Choice([
+    'general', 'tech_ai', 'finance', 'history', 'geography',
+    'art', 'science', 'stem', 'programming'
+]), help='Template to use (default: auto-detect)')
+@click.option('--all', 'all_videos', is_flag=True, help='Summarize all extracted videos')
+@click.option('--skip-existing', is_flag=True, default=True, help='Skip videos with existing summaries')
+@click.option('--show', is_flag=True, help='Show generated summary')
+def summarize(video_ids, template, all_videos, skip_existing, show):
+    """Generate kid-friendly summaries for videos.
+
+    Templates: general, tech_ai, finance, history, geography, art, science, stem, programming
+
+    Examples:
+        videodistiller summarize VIDEO_ID
+        videodistiller summarize VIDEO_ID1 VIDEO_ID2 VIDEO_ID3
+        videodistiller summarize --all
+        videodistiller summarize --template history VIDEO_ID
+        videodistiller summarize --template science --show VIDEO_ID
+    """
+    # Load configuration
+    config = Config()
+
+    # Setup logging
+    logger = setup_logging(config)
+
+    # Check OpenRouter API key
+    if not config.openrouter_api_key:
+        click.echo("Error: OPENROUTER_API_KEY not configured in .env", err=True)
+        click.echo("See docs/plans/2025-11-20-phase2-llm-summarization-design.md", err=True)
+        sys.exit(1)
+
+    # Initialize LLM components
+    cost_tracker = CostTracker(
+        data_dir=config.data_dir,
+        max_monthly_cost=config.max_monthly_cost,
+        warn_at_cost=config.warn_at_cost
+    )
+
+    llm_client = OpenRouterClient(
+        api_key=config.openrouter_api_key,
+        model=config.llm_model,
+        cost_tracker=cost_tracker
+    )
+
+    analyzer = ContentAnalyzer(
+        llm_client=llm_client,
+        data_dir=config.data_dir,
+        cost_tracker=cost_tracker
+    )
+
+    try:
+        # Determine which videos to summarize
+        if all_videos:
+            # Get all video IDs from metadata directory
+            metadata_dir = config.data_dir / "metadata"
+            video_ids = [f.stem for f in metadata_dir.glob("*.json")]
+            if not video_ids:
+                click.echo("No videos found. Run 'videodistiller extract' first.")
+                sys.exit(1)
+            click.echo(f"Found {len(video_ids)} videos")
+
+        if not video_ids:
+            click.echo("Error: No video IDs specified", err=True)
+            click.echo("Run 'videodistiller summarize --help' for usage", err=True)
+            sys.exit(1)
+
+        # Show budget status
+        usage = cost_tracker.get_usage_summary()
+        click.echo(f"\nBudget: ${usage['total_cost']:.2f} / ${cost_tracker.max_monthly_cost:.2f} ({usage['budget_used_percent']:.1f}%)")
+        click.echo(f"Remaining: ${usage['remaining_budget']:.2f}\n")
+
+        # Summarize videos
+        click.echo(f"Summarizing {len(video_ids)} video(s)...")
+
+        summaries = analyzer.summarize_batch(
+            video_ids=list(video_ids),
+            template_name=template,
+            auto_detect=(template is None),
+            skip_existing=skip_existing
+        )
+
+        # Display results
+        click.echo(f"\n✓ Generated {len(summaries)} summaries")
+
+        for summary in summaries:
+            click.echo(f"\n{summary.title}")
+            click.echo(f"  Video ID: {summary.video_id}")
+            click.echo(f"  Template: {summary.template_used}")
+            click.echo(f"  Tokens: {summary.tokens_used}")
+            click.echo(f"  Cost: ${summary.cost:.4f}")
+
+            if show:
+                click.echo(f"\n{summary.summary_text}\n")
+                click.echo("-" * 80)
+
+        # Final budget status
+        usage = cost_tracker.get_usage_summary()
+        click.echo(f"\nFinal budget: ${usage['total_cost']:.2f} / ${cost_tracker.max_monthly_cost:.2f} ({usage['budget_used_percent']:.1f}%)")
+
+    except KeyboardInterrupt:
+        click.echo("\nInterrupted by user")
+        sys.exit(1)
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+        logger.exception("Summarization failed")
         sys.exit(1)
 
 
