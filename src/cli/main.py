@@ -99,18 +99,24 @@ def extract(url, playlist, channel, limit):
 
 @cli.command()
 @click.argument('video_ids', nargs=-1, required=True)
-@click.option('--template', type=click.Choice(['general', 'tech_ai', 'finance']), help='Template to use (default: auto-detect)')
+@click.option('--template', type=click.Choice([
+    'general', 'tech_ai', 'finance', 'history', 'geography',
+    'art', 'science', 'stem', 'programming'
+]), help='Template to use (default: auto-detect)')
 @click.option('--all', 'all_videos', is_flag=True, help='Summarize all extracted videos')
 @click.option('--skip-existing', is_flag=True, default=True, help='Skip videos with existing summaries')
 @click.option('--show', is_flag=True, help='Show generated summary')
 def summarize(video_ids, template, all_videos, skip_existing, show):
     """Generate kid-friendly summaries for videos.
 
+    Templates: general, tech_ai, finance, history, geography, art, science, stem, programming
+
     Examples:
         videodistiller summarize VIDEO_ID
         videodistiller summarize VIDEO_ID1 VIDEO_ID2 VIDEO_ID3
         videodistiller summarize --all
-        videodistiller summarize --template tech_ai VIDEO_ID
+        videodistiller summarize --template history VIDEO_ID
+        videodistiller summarize --template science --show VIDEO_ID
     """
     # Load configuration
     config = Config()
