@@ -9,7 +9,7 @@ description = "Extract and analyze YouTube video content"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-    {name = "Your Name", email = "your.email@example.com"}
+    {name = "TK Kipper", email = "tk@example.com"}
 ]
 dependencies = [
     "click>=8.1.0",
