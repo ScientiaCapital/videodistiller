@@ -1,7 +1,6 @@
 """Logging configuration for VideoDistiller."""
 import logging
 from datetime import datetime
-from pathlib import Path
 
 from rich.logging import RichHandler
 

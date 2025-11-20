@@ -1,6 +1,7 @@
 """Main pipeline orchestration."""
 import logging
 from typing import List
+
 from src.core.interfaces import VideoExtractor, VideoRepository
 from src.core.models import VideoMetadata
 

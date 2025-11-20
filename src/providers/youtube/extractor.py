@@ -2,21 +2,14 @@
 import re
 from datetime import datetime
 from typing import List, Optional
+
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from youtube_transcript_api import YouTubeTranscriptApi
-from youtube_transcript_api._errors import (
-    TranscriptsDisabled,
-    NoTranscriptFound,
-    VideoUnavailable
-)
 
 from src.core.interfaces import VideoExtractor
-from src.core.models import VideoMetadata, Transcript, TranscriptSegment
-from src.providers.youtube.exceptions import (
-    VideoNotFound,
-    QuotaExceeded
-)
+from src.core.models import Transcript, TranscriptSegment, VideoMetadata
+from src.providers.youtube.exceptions import QuotaExceeded, VideoNotFound
 
 
 class YouTubeExtractor(VideoExtractor):

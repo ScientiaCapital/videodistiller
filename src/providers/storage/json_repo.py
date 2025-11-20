@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 from typing import List, Optional
+
 from src.core.interfaces import VideoRepository
 from src.core.models import VideoMetadata
 

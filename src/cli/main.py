@@ -1,14 +1,14 @@
 """Main CLI application."""
 import sys
-import click
-from pathlib import Path
 
+import click
+
+from src.cli.utils import extract_playlist_id, extract_video_id
+from src.pipeline.pipeline import Pipeline
+from src.providers.storage.json_repo import JSONRepository
+from src.providers.youtube.extractor import YouTubeExtractor
 from src.utils.config import Config
 from src.utils.logging import setup_logging
-from src.providers.youtube.extractor import YouTubeExtractor
-from src.providers.storage.json_repo import JSONRepository
-from src.pipeline.pipeline import Pipeline
-from src.cli.utils import extract_video_id, extract_playlist_id
 
 
 @click.group()
@@ -118,8 +118,8 @@ def validate():
 
     # Check dependencies
     try:
-        import googleapiclient
-        import youtube_transcript_api
+        import googleapiclient  # noqa: F401
+        import youtube_transcript_api  # noqa: F401
         click.echo("✓ Dependencies installed")
     except ImportError as e:
         errors.append(f"✗ Missing dependency: {e}")

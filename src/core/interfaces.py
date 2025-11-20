@@ -1,7 +1,8 @@
 """Abstract interfaces for provider plugins."""
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from src.core.models import VideoMetadata, Transcript
+
+from src.core.models import Transcript, VideoMetadata
 
 
 class VideoExtractor(ABC):
