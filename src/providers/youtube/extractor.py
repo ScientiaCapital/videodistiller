@@ -61,28 +61,29 @@ class YouTubeExtractor(VideoExtractor):
     def get_transcript(self, video_id: str) -> Optional[Transcript]:
         """Fetch video transcript."""
         try:
-            # Get transcript (auto-generated or manual)
-            transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+            # Instantiate API and fetch transcript
+            api = YouTubeTranscriptApi()
+            fetched_transcript = api.fetch(video_id, languages=['en'])
 
             # Combine into full text
-            full_text = ' '.join(entry['text'] for entry in transcript_list)
+            full_text = ' '.join(segment.text for segment in fetched_transcript)
 
             # Create segments
             segments = [
                 TranscriptSegment(
-                    text=entry['text'],
-                    start=entry['start'],
-                    duration=entry['duration']
+                    text=segment.text,
+                    start=segment.start,
+                    duration=segment.duration
                 )
-                for entry in transcript_list
+                for segment in fetched_transcript
             ]
 
             return Transcript(
                 video_id=video_id,
                 text=full_text,
-                language='en',  # Default, could be detected
+                language=fetched_transcript.language,
                 segments=segments,
-                is_auto_generated=True  # Could check this
+                is_auto_generated=fetched_transcript.is_generated
             )
 
         except Exception:

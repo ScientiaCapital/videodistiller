@@ -54,7 +54,7 @@ def extract(url, playlist, channel, limit):
             result = pipeline.process_video(video_id)
 
             click.echo(f"✓ Saved: {result.title}")
-            click.echo(f"  Channel: {result.channel}")
+            click.echo(f"  Channel: {result.channel_title}")
             click.echo(f"  Duration: {result.duration}s")
             if result.transcript:
                 click.echo(f"  Transcript: {len(result.transcript.text)} characters")
