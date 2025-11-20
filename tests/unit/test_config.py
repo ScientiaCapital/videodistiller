@@ -43,3 +43,38 @@ def test_config_data_directory_paths():
 
     assert config.metadata_dir == Path("./data/metadata")
     assert config.transcripts_dir == Path("./data/transcripts")
+
+
+def test_config_ensure_directories_exist(tmp_path, monkeypatch):
+    """Test ensure_directories_exist creates nested directories."""
+    # Set up nested directory paths in temp location
+    test_data_dir = tmp_path / "deep" / "nested" / "data"
+    test_log_dir = tmp_path / "deep" / "nested" / "logs"
+
+    monkeypatch.setenv("DATA_DIR", str(test_data_dir))
+    monkeypatch.setenv("LOG_DIR", str(test_log_dir))
+
+    config = Config()
+
+    # Directories should not exist yet
+    assert not config.data_dir.exists()
+    assert not config.metadata_dir.exists()
+    assert not config.transcripts_dir.exists()
+    assert not config.log_dir.exists()
+
+    # Create directories
+    config.ensure_directories_exist()
+
+    # All directories should now exist
+    assert config.data_dir.exists()
+    assert config.data_dir.is_dir()
+    assert config.metadata_dir.exists()
+    assert config.metadata_dir.is_dir()
+    assert config.transcripts_dir.exists()
+    assert config.transcripts_dir.is_dir()
+    assert config.log_dir.exists()
+    assert config.log_dir.is_dir()
+
+    # Should be idempotent - can run again without error
+    config.ensure_directories_exist()
+    assert config.data_dir.exists()

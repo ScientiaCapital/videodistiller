@@ -39,7 +39,7 @@ class Config:
 
     def ensure_directories_exist(self) -> None:
         """Create necessary directories if they don't exist."""
-        self.data_dir.mkdir(exist_ok=True)
-        self.metadata_dir.mkdir(exist_ok=True)
-        self.transcripts_dir.mkdir(exist_ok=True)
-        self.log_dir.mkdir(exist_ok=True)
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+        self.metadata_dir.mkdir(parents=True, exist_ok=True)
+        self.transcripts_dir.mkdir(parents=True, exist_ok=True)
+        self.log_dir.mkdir(parents=True, exist_ok=True)
