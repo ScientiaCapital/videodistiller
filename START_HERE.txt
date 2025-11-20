@@ -1,0 +1,77 @@
+================================================================================
+                           VIDEODISTILLER
+                     YouTube Content Extraction Tool
+================================================================================
+
+QUICK START (10 minutes):
+
+1. Install dependencies:
+   $ pip install -r requirements.txt
+
+2. Get YouTube API key:
+   - Go to: https://console.cloud.google.com/
+   - Enable "YouTube Data API v3"
+   - Create API Key
+
+3. Configure:
+   $ cp .env.example .env
+   $ nano .env  # Add your YOUTUBE_API_KEY
+
+4. Validate setup:
+   $ python validate_setup.py
+
+5. Extract your first video:
+   $ videodistiller extract --url "https://youtube.com/watch?v=..."
+
+================================================================================
+
+COMMON COMMANDS:
+
+  Extract single video:
+    $ videodistiller extract --url "https://youtube.com/watch?v=abc123"
+
+  Extract playlist:
+    $ videodistiller extract --playlist "https://youtube.com/playlist?list=PLxxx"
+
+  Extract from channel (recent 10 videos):
+    $ videodistiller extract --channel "UCxxx" --limit 10
+
+  Validate setup:
+    $ videodistiller validate
+
+================================================================================
+
+OUTPUT:
+
+  Data is saved to:
+    data/metadata/       - Video metadata (JSON)
+    data/transcripts/    - Transcripts (text)
+    logs/               - Application logs
+
+================================================================================
+
+DOCUMENTATION:
+
+  - QUICKSTART.md      - Detailed 10-minute setup guide
+  - README.md          - Project overview
+  - docs/plans/        - Architecture and implementation docs
+
+================================================================================
+
+TROUBLESHOOTING:
+
+  "Quota exceeded":
+    → YouTube API has daily limits
+    → Wait 24 hours or increase quota in Google Cloud Console
+
+  "No transcript available":
+    → Some videos don't have transcripts
+    → VideoDistiller saves metadata only
+
+  "YOUTUBE_API_KEY not configured":
+    → Edit .env file and add your API key
+    → Run: python validate_setup.py
+
+================================================================================
+
+For more help, see QUICKSTART.md
